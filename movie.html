@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Finder</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 0 20px;
+            background: #0a92ae;
+            color: #1f2933;
+        }
+        form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        input, button {
+            padding: 10px 12px;
+            font-size: 1rem;
+        }
+        input {
+            flex: 1;
+        }
+        button {
+            cursor: pointer;
+            background: #1bd334;
+            color: white;
+            border: 0;
+            border-radius: 4px;
+        }
+        #movie {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 24px;
+            background: rgb(203, 181, 15);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        #movie img {
+            width: 200px;
+            min-height: 290px;
+            object-fit: cover;
+            background: #e5e7eb;
+        }
+        #message {
+            color: #b42318;
+        }
+        @media (max-width: 600px) {
+            form, #movie {
+                display: block;
+            }
+            input, button {
+                width: 100%;
+                box-sizing: border-box;
+                margin-bottom: 10px;
+            }
+            #movie img {
+                display: block;
+                margin: 0 auto 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1><i>Movie Finder</i></h1>
+    <form id="movie-form">
+        <input id="movie-name" type="search" placeholder="Search for a movie" value="Interstellar" required>
+        <button type="submit">Search</button>
+    </form>
+    <p id="message" role="status"></p>
+    <article id="movie" hidden>
+        <img id="poster" alt="">
+        <div>
+            <h2 id="title"></h2>
+            <p id="details"></p>
+            <p id="plot"></p>
+            <p><strong>Director:</strong> <span id="director"></span></p>
+            <p><strong>Actors:</strong> <span id="actors"></span></p>
+            <p><strong>IMDB rating:</strong> <span id="rating"></span></p>
+        </div>
+    </article>
+    <script>
+    const movieForm = document.getElementById("movie-form")
+    const movieName = document.getElementById("movie-name")
+    const movieElement = document.getElementById("movie")
+    const message = document.getElementById("message")
+
+    async function getMovie(movieTitle){
+        const url = `https://www.omdbapi.com/?t=${encodeURIComponent(movieTitle)}&apikey=a6606658`
+        message.textContent = "Loading..."
+        movieElement.hidden = true
+
+        try {
+            const response = await fetch(url)
+            const data = await response.json()
+
+            if(data.Response === "False") {
+                throw new Error(data.Error)
+            }
+
+            document.getElementById("title").textContent = `${data.Title} (${data.Year})`
+            document.getElementById("details").textContent = `${data.Genre} | ${data.Runtime} | ${data.Rated}`
+            document.getElementById("plot").textContent = data.Plot
+            document.getElementById("director").textContent = data.Director
+            document.getElementById("actors").textContent = data.Actors
+            document.getElementById("rating").textContent = data.imdbRating
+
+            const poster = document.getElementById("poster")
+            poster.src = data.Poster !== "N/A" ? data.Poster : ""
+            poster.alt = `${data.Title} poster`
+            movieElement.hidden = false
+            message.textContent = ""
+        } catch(error) {
+            message.textContent = `Could not load the movie: ${error.message}`
+        }
+        }
+
+    movieForm.addEventListener("submit", function(event) {
+        event.preventDefault()
+        getMovie(movieName.value.trim())
+    })
+
+    getMovie(movieName.value)
+    </script>
+</body>
+</html>

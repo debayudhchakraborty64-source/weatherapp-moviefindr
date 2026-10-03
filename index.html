@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+
+.card5{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px;
+    padding-top: 70px;
+    min-height: 80vh;
+}
+
+.card {
+  box-sizing: border-box;
+  width: 400px;
+  height: 600px;
+  background: rgba(217, 217, 217, 0.58);
+  border: 1px solid white;
+  box-shadow: 12px 17px 51px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(6px);
+  border-radius: 17px;
+  cursor: pointer;
+  transition: all 0.5s;
+  user-select: none;
+  font-weight: bolder;
+  color: black;
+  
+ 
+}
+
+.card:hover {
+  border: 1px solid black;
+  transform: scale(1.05);
+}
+
+.card:active {
+  transform: scale(0.95) 
+}
+h1{
+    display: block;
+    margin-bottom: 20px;
+    background-color: rgb(23, 22, 21);
+    margin-top: -20px;
+    border-radius: 17px 17px 0px 0px;
+    color: rgb(238, 119, 15);
+}
+
+.input-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 200px;
+}
+
+#result {
+    text-align: center;
+    margin-top: 30px;
+    width: 100%;
+}
+  
+
+ .nup{
+    position: fixed;
+    top: 5px;
+    right: 50px;
+    margin-bottom: -10px;
+ }
+
+</style>
+</head>
+<body>
+    
+<p class="nup"><a href="movie.html" target="_blank">MOVIE FINDER</a></p>
+<div class="card5">
+  <div class="card">
+  <h1>Weather App</h1>
+  
+     <div class="input-container">
+        <input id="city" style="width: 80%; height: 40px; font-size: 16px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" type="text" placeholder="Enter city name">
+     </div>
+      <div id="result"></div>
+  </div>
+</div>
+
+<script>
+const input = document.querySelector("#city");
+const result = document.querySelector("#result");
+
+const API_KEY = "77f637e2bdb24725f74f3741235c911b";
+
+input.addEventListener("keydown", (event) => {
+
+    if (event.key === "Enter") {
+
+        const city = input.value.trim();
+
+        if (city === "") {
+            result.innerHTML = "<p>Please enter a city name.</p>";
+            return;
+        }
+
+        fetch(
+
+            `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&units=metric&appid=${API_KEY}`
+        )
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error("City not found");
+            }
+
+            return response.json();
+        })
+        .then(data => {
+
+            result.innerHTML = `
+                <h2>${data.name}</h2>
+
+                <p style="font-size: 40px; margin: 10px;">
+                    ${Math.round(data.main.temp)}°C
+                </p>
+
+                <p>
+                    ${data.weather[0].description}
+                </p>
+
+                <p>
+                    Humidity: ${data.main.humidity}%
+                </p>
+
+                <p>
+                    Feels like: ${Math.round(data.main.feels_like)}°C
+                </p>
+            `;
+        })
+        .catch(error => {
+
+            if (error.message === "City not found") {
+                result.innerHTML = "<p>City not found ❌</p>";
+            } else {
+                result.innerHTML = "<p>Something went wrong ❌</p>";
+            }
+
+            console.log(error);
+        });
+    }
+});
+</script>
+
+</body>
+</html>
